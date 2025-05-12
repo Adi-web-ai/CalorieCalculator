@@ -1,0 +1,351 @@
+
+
+
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון קלוריות פירות וירקות</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .btn{
+        background: green;
+       
+        
+        }
+        .btn:hover {
+  background-color: green;
+  font-size: 18px;
+}
+    </style>
+</head>
+<body class="bg-blue-100 p-6 text-right">
+<!--   <button class = "btn" class="     " onclick="Run()">Run</button>--> <!-- שיניתי כאן לסוגריים -->
+   <input id="loaddata" type="file" accept=".json" >
+   <input id="yhidotmida" type="file" accept=".json" >
+<p id="demo"></p><!--//טוען נתונים...-->
+    <h1 class="text-3xl font-semibold text-blue-600 mb-8 text-center">מחשבון קלוריות פירות וירקות</h1>
+
+    <div class="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">בחר פרי/ירק וכמות</h2>
+            <div class="mb-4">
+                <label for="searchInput" class="block text-gray-700 text-sm font-bold mb-2">חפש מאכל:</label>
+                <input type="text" id="searchInput" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="הקלד לחיפוש...">
+            </div>
+            
+            <div class="mb-4">
+                <label for="foodSelect" class="block text-gray-700 text-sm font-bold mb-2">בחר פרי/ירק:</label>
+                <select id="foodSelect" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>בחר...</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="midaSelect" class="block text-gray-700 text-sm font-bold mb-2">בחר מידה:</label>
+                <select id="midaSelect" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>בחר...</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="quantity" class="block text-gray-700 text-sm font-bold mb-2">כמות (גרם):</label>
+                <input type="number" id="quantity" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" min="0" placeholder="הכנס כמות בגרם">
+            </div>
+            <div class="flex items-center justify-end">
+                <button id="addFoodButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ">
+                    הוסף למזון
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">התפריט היומי שלי</h2>
+            <ul id="foodList" class="mb-4 space-y-2">
+                </ul>
+            <div class="font-bold text-gray-800 text-lg">
+                סך קלוריות: <span id="totalCalories" class="text-red-500">0</span><br>
+                סך חלבונים: <span id="totalProteins" class="text-red-500">0</span><br>
+                סך פחמימות: <span id="totalCarbs" class="text-red-500">0</span><br>
+                סך שומנים: <span id="totalFats" class="text-red-500">0</span>
+            </div>
+            <div class="mt-4 flex justify-center">
+                <button id="saveButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+                    שמור תפריט
+                </button>
+                <button id="loadButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+                    העלה תפריט
+                </button>
+                <button id="delButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+                     מחק תפריט
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const foodSelect = document.getElementById("foodSelect");
+        const quantityInput = document.getElementById("quantity");
+        const addFoodButton = document.getElementById("addFoodButton");
+        const foodList = document.getElementById("foodList");
+        const totalCaloriesDisplay = document.getElementById("totalCalories");
+        const totalProteinsDisplay = document.getElementById("totalProteins");
+        const totalCarbsDisplay = document.getElementById("totalCarbs");
+        const totalFatsDisplay = document.getElementById("totalFats");
+        const saveButton = document.getElementById("saveButton");
+        const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", filterFoodOptions);
+
+function filterFoodOptions() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    foodSelect.innerHTML = '<option value="" disabled selected>בחר...</option>'; // מנקה את הרשימה
+    let nmida;
+    for (const foodName in foodData) {
+        const displayName = foodData[foodName].shmmitzrach;
+        if (displayName.toLowerCase().includes(searchTerm)) {
+            const option = document.createElement("option");
+            nmida = foodData[foodName].mmitzrach;//mmitzrach
+            console.log("nmida " + nmida)
+            option.value = foodName;
+            option.textContent = displayName;
+            foodSelect.appendChild(option);
+        }
+    }
+       
+}
+
+let yehidotMida = [];
+let foodData = [];
+fetch('data.json')
+  .then(response => response.json())
+  .then(data => {
+    
+    foodData = structuredClone(data);
+    loadFoodOptions();
+   // document.getElementById("demo").innerHTML = "הנתונים נטענו. לחץ על הכפתור כדי להציגם.";
+    console.log("foodData");
+    console.log(foodData);
+  })
+  .catch(error => {
+    document.getElementById("demo").innerHTML = "אירעה שגיאה בטעינת הנתונים.";
+    console.error('אירעה שגיאה בקריאת קובץ ה-JSON:', error);
+  });
+
+  fetch('yehidot_mida_lemitzrachim.json')
+  .then(response => response.json())
+  .then(data => {
+    yehidotMida = structuredClone(data);
+    //loadSavedFoodList();
+  //  document.getElementById("demo").innerHTML = "הנתוני מידה. לחץ על הכפתור כדי להציגם.";
+    console.log("yehidotMida");
+    console.log(yehidotMida);
+  })
+  .catch(error => {
+    document.getElementById("demo").innerHTML = "אירעה שגיאה בטעינת מידה הנתונים.";
+    console.error('אירעה שגיאה בקריאת קובץ ה-JSON:', error);
+  });
+function Run() {
+ // document.getElementById("demo").innerHTML = JSON.stringify(foodData, null, 2); // מציג יפה
+// Initialize the page
+//loadFoodOptions();
+//loadSavedFoodList(); // Load saved data on page load
+}
+        // טעינת האפשרויות של select
+function loadFoodOptions(filter = "") {
+    foodSelect.innerHTML = "<option value='' disabled selected>בחר...</option>"; // לנקות קודם
+    let nmida;
+    console.log("loadFoodOptions")
+    for (const foodName in foodData) {
+        const item = foodData[foodName];
+        const text = item.shmmitzrach || "";
+        if (text.toLowerCase().includes(filter.toLowerCase())) {
+            const option = document.createElement("option");
+            option.value = foodName;
+            option.textContent = text;
+            foodSelect.appendChild(option);
+        }
+    }
+
+   
+}
+foodSelect.addEventListener("change", function() {
+    const selectedFood = foodSelect.value;
+    const foodItem = foodData[selectedFood];
+
+    if (!foodItem) return; // אם אין פריט, לא עושים כלום
+
+    midaSelect.innerHTML = "<option value='' disabled selected>בחר...</option>"; // ננקה את הרשימה
+
+    const mmitzrachCode = foodItem.mmitzrach; // קוד מידה של המאכל הנבחר
+    console.log("קוד מידה:", mmitzrachCode);
+
+    for (const midaCode in yehidotMida) {
+        const mida = yehidotMida[midaCode];
+        if (mida.mmitzrach === mmitzrachCode) {
+            const option = document.createElement("option");
+            option.value = mida.mishkal; // משקל היחידה
+            option.textContent = mida.shmmida; // שם היחידה
+            midaSelect.appendChild(option);
+        }
+    }
+});
+midaSelect.addEventListener("change", function() {
+    const selectedWeight = parseFloat(midaSelect.value);
+    if (!isNaN(selectedWeight)) {
+        quantityInput.value = selectedWeight;
+    }
+});
+
+
+searchInput.addEventListener("input", function() {
+    loadFoodOptions(this.value);
+    
+    
+});
+
+let totalCalories = 0;
+let totalProteins = 0;
+let totalCarbs = 0;
+let totalFats = 0;
+let foodItems = [];
+
+// פונקציה להוספת מזון לרשימה
+function addFoodItem() {
+    const selectedFood = foodSelect.value;
+    const quantity = parseFloat(quantityInput.value);
+
+    if (selectedFood && quantity > 0) {
+        const foodItem = foodData[selectedFood];
+        console.log(foodItem)
+        const calories = (quantity / 100) * foodItem.food_energy;
+        const proteins = (quantity / 100) * foodItem.protein;
+        const carbs = (quantity / 100) * foodItem.carbohydrates;
+        const fats = (quantity / 100) * foodItem.total_fat;
+
+        totalCalories += calories;
+        totalProteins += proteins;
+        totalCarbs += carbs;
+        totalFats += fats;
+        foodItems.push({
+            name: foodItem.shmmitzrach, // Use the Hebrew name here as well.
+            quantity: quantity,
+            calories: calories,
+            proteins: proteins,
+            carbs: carbs,
+            fats: fats,
+        });
+
+        updateFoodList();
+        updateTotalCalories();
+        quantityInput.value = ""; // Clear the input
+        foodSelect.value = "";       // Reset the select dropdown
+    } else {
+        alert("אנא בחר פרי/ירק והכנס כמות חיובית.");
+    }
+}
+
+// פונקציה לעדכון רשימת המזון
+function updateFoodList() {
+    foodList.innerHTML = ""; // Clear the list
+    foodItems.forEach((item) => {
+        const listItem = document.createElement("li");
+        listItem.className = "bg-gray-50 rounded-md py-2 px-3 shadow-sm flex justify-between items-center";
+        listItem.innerHTML = `
+            <div>
+                <span class="font-semibold text-gray-800">${item.name}</span> - <span class="text-gray-600">${item.quantity} גרם</span><br>
+                <span class="text-gray-600"> חלבונים: ${item.proteins.toFixed(2)} גרם, פחמימות: ${item.carbs.toFixed(2)} גרם, שומנים: ${item.fats.toFixed(2)} גרם</span>
+            </div>
+            <span class="text-blue-500 font-medium">${item.calories.toFixed(2)} קלוריות</span>
+        `;
+        foodList.appendChild(listItem);
+    });
+}
+
+// פונקציה לעדכון סך הקלוריות
+function updateTotalCalories() {
+    totalCaloriesDisplay.textContent = totalCalories.toFixed(2);
+    totalProteinsDisplay.textContent = totalProteins.toFixed(2);
+    totalCarbsDisplay.textContent = totalCarbs.toFixed(2);
+    totalFatsDisplay.textContent = totalFats.toFixed(2);
+}
+
+// פונקציה לשמירת התפריט
+function saveFoodList() {
+    localStorage.setItem('foodItems', JSON.stringify(foodItems));
+    localStorage.setItem('totalCalories', totalCalories.toString());
+    localStorage.setItem('totalProteins', totalProteins.toString());
+    localStorage.setItem('totalCarbs', totalCarbs.toString());
+    localStorage.setItem('totalFats', totalFats.toString());
+    alert("התפריט שלך נשמר בהצלחה!");
+}
+
+// פונקציה לטעינת התפריט השמור
+function loadSavedFoodList() {
+    let savedFoodItems = localStorage.getItem('foodItems');
+    const savedTotalCalories = localStorage.getItem('totalCalories');
+    const savedTotalProteins = localStorage.getItem('totalProteins');
+    const savedTotalCarbs = localStorage.getItem('totalCarbs');
+    const savedTotalFats = localStorage.getItem('totalFats');
+
+    if (savedFoodItems) {
+        foodItems = JSON.parse(savedFoodItems);
+        totalCalories = parseFloat(savedTotalCalories) || 0;
+        totalProteins = parseFloat(savedTotalProteins) || 0;
+        totalCarbs = parseFloat(savedTotalCarbs) || 0;
+        totalFats = parseFloat(savedTotalFats) || 0;
+        updateFoodList();
+        updateTotalCalories();
+    }
+}
+function delFoodList()
+{
+localStorage.clear();
+foodList.innerHTML = "";
+totalCalories = 0;
+totalProteins = 0;
+totalCarbs = 0;
+totalFats = 0;
+foodItems = [];
+updateTotalCalories();
+/*while( root.firstChild ){
+  root.removeChild( root.firstChild );
+}*/
+}
+document.getElementById('loaddata').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    foodData = JSON.parse(e.target.result);
+                    console.log("foodData" , foodData);
+                };
+                reader.readAsText(file);
+            }
+        });
+      document.getElementById('yhidotmida').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            yehidotMida = JSON.parse(e.target.result);
+            console.log("yehidotMida" , yehidotMida);
+          };
+          reader.readAsText(file);
+        }
+        loadFoodOptions();
+      });
+// Event Listeners
+addFoodButton.addEventListener("click", addFoodItem);
+saveButton.addEventListener("click", saveFoodList);
+loadButton.addEventListener("click", loadSavedFoodList);
+delButton.addEventListener("click", delFoodList);
+
+        
+    </script>
+</body>
+</html>
